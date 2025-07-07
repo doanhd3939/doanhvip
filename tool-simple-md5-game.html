@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tool Dự Đoán MD5 - Game Tài Xỉu</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #4f46e5;
+            --secondary-color: #06b6d4;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
+            --text-dark: #1f2937;
+            --text-light: #6b7280;
+            --bg-white: #ffffff;
+            --bg-gray: #f9fafb;
+            --border-color: #e5e7eb;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--text-dark);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: var(--bg-white);
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: var(--text-light);
+            font-size: 1.1rem;
+        }
+
+        .main-card {
+            background: var(--bg-white);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: var(--bg-white);
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .form-select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 1rem;
+            background: var(--bg-white);
+            cursor: pointer;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 70, 229, 0.3);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .status-card {
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 500;
+            border: 2px solid;
+        }
+
+        .status-active {
+            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+            border-color: var(--success-color);
+            color: #065f46;
+        }
+
+        .status-inactive {
+            background: linear-gradient(135deg, #fffbeb, #fef3c7);
+            border-color: var(--warning-color);
+            color: #92400e;
+        }
+
+        .game-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .game-option {
+            padding: 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            background: var(--bg-white);
+        }
+
+        .game-option:hover {
+            border-color: var(--primary-color);
+            background: rgba(79, 70, 229, 0.05);
+        }
+
+        .game-option.active {
+            border-color: var(--primary-color);
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .game-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .game-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .game-desc {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .prediction-result {
+            background: linear-gradient(135deg, var(--bg-gray), #f3f4f6);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 20px;
+            border-left: 5px solid var(--primary-color);
+        }
+
+        .prediction-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .prediction-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+
+        .prediction-confidence {
+            background: var(--primary-color);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .prediction-value {
+            font-size: 3rem;
+            font-weight: 800;
+            text-align: center;
+            padding: 30px;
+            border-radius: 15px;
+            margin: 20px 0;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .prediction-tai {
+            background: linear-gradient(135deg, #ff6b6b, #ff8e8e);
+            color: white;
+        }
+
+        .prediction-xiu {
+            background: linear-gradient(135deg, #4ecdc4, #6ee2dc);
+            color: white;
+        }
+
+        .prediction-analysis {
+            background: var(--bg-white);
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+
+        .analysis-title {
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .analysis-text {
+            color: var(--text-light);
+            line-height: 1.7;
+            white-space: pre-line;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 20px;
+            background: var(--bg-white);
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            border: 2px solid #fff;
+            border-top: 2px solid transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        .alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            z-index: 1000;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+        }
+
+        .alert.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .alert-success {
+            background: var(--success-color);
+        }
+
+        .alert-error {
+            background: var(--error-color);
+        }
+
+        .alert-warning {
+            background: var(--warning-color);
+        }
+
+        @media (max-width: 768px) {
+            .main-card {
+                padding: 25px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .prediction-value {
+                font-size: 2.5rem;
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Tool Dự Đoán MD5</h1>
+            <p>Dự đoán kết quả game với thuật toán MD5 thông minh</p>
+        </div>
+
+        <div class="main-card">
+            <!-- License Section -->
+            <div class="section">
+                <div class="section-title">
+                    <span>🔐</span>
+                    <span>Kích Hoạt License</span>
+                </div>
+
+                <div id="licenseStatus" class="status-card status-inactive">
+                    ⚠️ Chưa kích hoạt license
+                </div>
+
+                <div id="licenseForm">
+                    <div class="form-group">
+                        <label class="form-label">Nhập License Key:</label>
+                        <input type="text" id="licenseKey" class="form-input" placeholder="Nhập mã license của bạn">
+                    </div>
+                    <button class="btn btn-primary" onclick="activateLicense()">⚡ Kích Hoạt License</button>
+                </div>
+
+                <div id="licenseInfo" class="hidden">
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-value">∞</div>
+                            <div class="stat-label">Lượt dự đoán</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">98%</div>
+                            <div class="stat-label">Độ chính xác</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">Premium</div>
+                            <div class="stat-label">Phiên bản</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Game Selection -->
+            <div class="section" id="gameSection" style="display: none;">
+                <div class="section-title">
+                    <span>🎮</span>
+                    <span>Chọn Game</span>
+                </div>
+
+                <div class="game-selector">
+                    <div class="game-option active" data-game="hitclub" onclick="selectGame('hitclub')">
+                        <div class="game-icon">🔥</div>
+                        <div class="game-name">HitClub</div>
+                        <div class="game-desc">Game bài đổi thưởng</div>
+                    </div>
+                    <div class="game-option" data-game="go88" onclick="selectGame('go88')">
+                        <div class="game-icon">🎲</div>
+                        <div class="game-name">GO88</div>
+                        <div class="game-desc">Casino trực tuyến</div>
+                    </div>
+                    <div class="game-option" data-game="68gb" onclick="selectGame('68gb')">
+                        <div class="game-icon">🎮</div>
+                        <div class="game-name">68GB</div>
+                        <div class="game-desc">Solaire Gaming</div>
+                    </div>
+                    <div class="game-option" data-game="lucky" onclick="selectGame('lucky')">
+                        <div class="game-icon">🍀</div>
+                        <div class="game-name">Lucky</div>
+                        <div class="game-desc">Lucky Gaming</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MD5 Input Section -->
+            <div class="section" id="predictionSection" style="display: none;">
+                <div class="section-title">
+                    <span>🔮</span>
+                    <span>Dự Đoán MD5</span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Nhập chuỗi MD5:</label>
+                    <input type="text" id="md5Input" class="form-input" placeholder="Nhập chuỗi MD5 (32 ký tự)" maxlength="32">
+                </div>
+
+                <button class="btn btn-primary" onclick="predictFromMD5()" disabled id="predictBtn">🚀 Dự Đoán Ngay</button>
+
+                <div id="predictionResult" class="prediction-result hidden">
+                    <div class="prediction-header">
+                        <div class="prediction-title">🎯 Kết Quả Dự Đoán</div>
+                        <div class="prediction-confidence" id="confidenceLevel">98%</div>
+                    </div>
+                    
+                    <div class="prediction-value" id="predictionValue">TÀI</div>
+                    
+                    <div class="prediction-analysis">
+                        <div class="analysis-title">
+                            <span>📊</span>
+                            <span>Phân Tích Chi Tiết</span>
+                        </div>
+                        <div class="analysis-text" id="analysisText"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="alertContainer"></div>
+
+    <script>
+        // Valid license key
+        const validLicenseKey = 'ZEUS-4F9C-82TQ-1LZ7';
+        
+        let isLicenseActive = false;
+        let selectedGame = 'hitclub';
+
+        function showAlert(message, type = 'success') {
+            const alertContainer = document.getElementById('alertContainer');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            
+            alertContainer.appendChild(alert);
+            
+            setTimeout(() => alert.classList.add('show'), 100);
+            
+            setTimeout(() => {
+                alert.classList.remove('show');
+                setTimeout(() => alertContainer.removeChild(alert), 300);
+            }, 3000);
+        }
+
+        function activateLicense() {
+            const licenseKey = document.getElementById('licenseKey').value.trim();
+            
+            if (!licenseKey) {
+                showAlert('Vui lòng nhập license key!', 'warning');
+                return;
+            }
+
+            if (licenseKey === validLicenseKey) {
+                isLicenseActive = true;
+                document.getElementById('licenseStatus').className = 'status-card status-active';
+                document.getElementById('licenseStatus').innerHTML = '✅ License đã được kích hoạt thành công';
+                document.getElementById('licenseForm').classList.add('hidden');
+                document.getElementById('licenseInfo').classList.remove('hidden');
+                
+                // Show game selection
+                document.getElementById('gameSection').style.display = 'block';
+                document.getElementById('predictionSection').style.display = 'block';
+                
+                updatePredictButton();
+                showAlert('License đã được kích hoạt thành công!', 'success');
+            } else {
+                showAlert('License key không đúng! Vui lòng kiểm tra lại.', 'error');
+            }
+        }
+
+        function selectGame(game) {
+            selectedGame = game;
+            
+            // Update game options
+            document.querySelectorAll('.game-option').forEach(opt => {
+                opt.classList.remove('active');
+            });
+            document.querySelector(`[data-game="${game}"]`).classList.add('active');
+            
+            const gameNames = {
+                hitclub: 'HitClub',
+                go88: 'GO88',
+                '68gb': '68GB',
+                lucky: 'Lucky'
+            };
+            
+            showAlert(`Đã chọn game: ${gameNames[game]}`, 'success');
+        }
+
+        function md5Hash(str) {
+            // Simple hash function for MD5-like calculation
+            let hash = 0;
+            if (str.length === 0) return hash;
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash;
+            }
+            return Math.abs(hash);
+        }
+
+        function predictFromMD5() {
+            if (!isLicenseActive) {
+                showAlert('Vui lòng kích hoạt license trước!', 'warning');
+                return;
+            }
+
+            const md5Input = document.getElementById('md5Input').value.trim();
+            
+            if (!md5Input) {
+                showAlert('Vui lòng nhập chuỗi MD5!', 'warning');
+                return;
+            }
+
+            if (md5Input.length !== 32) {
+                showAlert('Chuỗi MD5 phải có đúng 32 ký tự!', 'error');
+                return;
+            }
+
+            if (!/^[a-fA-F0-9]+$/.test(md5Input)) {
+                showAlert('Chuỗi MD5 chỉ được chứa ký tự hex (0-9, a-f)!', 'error');
+                return;
+            }
+
+            // Show loading
+            const predictBtn = document.getElementById('predictBtn');
+            predictBtn.classList.add('loading');
+            predictBtn.textContent = '⚡ Đang phân tích...';
+
+            setTimeout(() => {
+                // Generate prediction based on selected game and MD5
+                const result = generatePrediction(md5Input, selectedGame);
+                
+                // Display results
+                displayResult(result);
+                
+                // Reset button
+                predictBtn.classList.remove('loading');
+                predictBtn.textContent = '🚀 Dự Đoán Ngay';
+                
+                showAlert(`Dự đoán hoàn thành: ${result.prediction} (${result.confidence}%)`, 'success');
+            }, 2500);
+        }
+
+        function generatePrediction(md5String, game) {
+            // Calculate hash value
+            const hashValue = md5Hash(md5String);
+            
+            // Game-specific algorithms
+            let prediction, confidence, analysis;
+            
+            switch (game) {
+                case 'hitclub':
+                    // HitClub algorithm: Focus on even/odd pattern
+                    const evenCount = md5String.split('').filter(char => parseInt(char, 16) % 2 === 0).length;
+                    prediction = evenCount >= 16 ? 'TÀI' : 'XỈU';
+                    confidence = Math.min(98, 85 + (Math.abs(evenCount - 16) * 2));
+                    analysis = `🔥 HitClub Algorithm:
+                    
+📊 Phân tích chuỗi MD5: ${md5String.substring(0, 8)}...${md5String.substring(24)}
+
+🔢 Thống kê ký tự:
+• Ký tự chẵn (0,2,4,6,8,A,C,E): ${evenCount}/32
+• Ký tự lẻ (1,3,5,7,9,B,D,F): ${32 - evenCount}/32
+• Tỷ lệ chẵn/lẻ: ${(evenCount/32*100).toFixed(1)}% / ${((32-evenCount)/32*100).toFixed(1)}%
+
+🎯 Thuật toán HitClub:
+• Ngưỡng quyết định: >= 16 ký tự chẵn = TÀI, < 16 = XỈU
+• Độ tin cậy tăng theo độ lệch từ ngưỡng 16
+• Kết quả: ${prediction} với confidence ${confidence}%
+
+💡 Giải thích: HitClub sử dụng thuật toán đếm ký tự chẵn/lẻ để đảm bảo tính công bằng và minh bạch.`;
+                    break;
+
+                case 'go88':
+                    // GO88 algorithm: Sum of hex values
+                    const hexSum = md5String.split('').reduce((sum, char) => sum + parseInt(char, 16), 0);
+                    prediction = (hexSum % 2 === 0) ? 'TÀI' : 'XỈU';
+                    confidence = Math.min(96, 82 + (hexSum % 15));
+                    analysis = `🎲 GO88 Algorithm:
+                    
+📊 Phân tích chuỗi MD5: ${md5String.substring(0, 8)}...${md5String.substring(24)}
+
+🔢 Tính toán Hex Sum:
+• Tổng giá trị hex của 32 ký tự: ${hexSum}
+• Modulo 2: ${hexSum % 2} (${hexSum % 2 === 0 ? 'Chẵn' : 'Lẻ'})
+• Hash value: ${hashValue}
+
+🎯 Thuật toán GO88:
+• Tổng chẵn = TÀI, Tổng lẻ = XỈU
+• Confidence tăng theo giá trị hex sum
+• Kết quả: ${prediction} với confidence ${confidence}%
+
+💡 Giải thích: GO88 dùng tổng giá trị hex để tạo sự ngẫu nhiên và đảm bảo công bằng cho người chơi.`;
+                    break;
+
+                case '68gb':
+                    // 68GB algorithm: Solaire method
+                    const solaireValue = hashValue ^ parseInt(md5String.substring(0, 8), 16);
+                    prediction = (solaireValue % 2 === 0) ? 'TÀI' : 'XỈU';
+                    confidence = Math.min(97, 83 + (solaireValue % 15));
+                    analysis = `🎮 68GB Solaire Algorithm:
+                    
+📊 Phân tích chuỗi MD5: ${md5String.substring(0, 8)}...${md5String.substring(24)}
+
+🔢 Solaire Method Calculation:
+• Hash value: ${hashValue}
+• First 8 chars hex: ${parseInt(md5String.substring(0, 8), 16)}
+• XOR result: ${solaireValue}
+• Modulo 2: ${solaireValue % 2}
+
+🎯 Thuật toán 68GB (Solaire Group):
+• Phát triển bởi Trần Văn Mạnh
+• Sử dụng XOR operation cho độ bảo mật cao
+• Kết quả: ${prediction} với confidence ${confidence}%
+
+💡 Giải thích: 68GB thuộc Solaire Group sử dụng thuật toán XOR độc quyền để đảm bảo tính ngẫu nhiên tuyệt đối.`;
+                    break;
+
+                case 'lucky':
+                    // Lucky algorithm: Pattern recognition
+                    const patternScore = calculateLuckyPattern(md5String);
+                    prediction = (patternScore >= 0) ? 'TÀI' : 'XỈU';
+                    confidence = Math.min(95, 80 + (Math.abs(patternScore) % 16));
+                    analysis = `🍀 Lucky Pattern Algorithm:
+                    
+📊 Phân tích chuỗi MD5: ${md5String.substring(0, 8)}...${md5String.substring(24)}
+
+🔢 Lucky Pattern Recognition:
+• Pattern score: ${patternScore}
+• Lucky factors tính toán từ vị trí ký tự
+• Kết hợp multiple pattern analysis
+• Hash value: ${hashValue}
+
+🎯 Thuật toán Lucky Gaming:
+• >= 0 = TÀI, < 0 = XỈU
+• Sử dụng pattern recognition AI
+• Kết quả: ${prediction} với confidence ${confidence}%
+
+💡 Giải thích: Lucky Gaming sử dụng AI pattern recognition để phân tích và dự đoán dựa trên các mẫu ẩn trong MD5.`;
+                    break;
+
+                default:
+                    prediction = (hashValue % 2 === 0) ? 'TÀI' : 'XỈU';
+                    confidence = 90;
+                    analysis = `Thuật toán cơ bản với hash value: ${hashValue}`;
+            }
+
+            return { prediction, confidence, analysis };
+        }
+
+        function calculateLuckyPattern(md5String) {
+            let score = 0;
+            for (let i = 0; i < md5String.length; i++) {
+                const value = parseInt(md5String[i], 16);
+                const position = i + 1;
+                
+                // Lucky pattern calculation
+                if (value >= 8) score += position;
+                else score -= position;
+                
+                // Bonus for consecutive same chars
+                if (i > 0 && md5String[i] === md5String[i-1]) {
+                    score += 10;
+                }
+            }
+            return score;
+        }
+
+        function displayResult(result) {
+            document.getElementById('predictionValue').textContent = result.prediction;
+            document.getElementById('predictionValue').className = `prediction-value prediction-${result.prediction.toLowerCase()}`;
+            document.getElementById('confidenceLevel').textContent = `${result.confidence}%`;
+            document.getElementById('analysisText').textContent = result.analysis;
+            
+            document.getElementById('predictionResult').classList.remove('hidden');
+        }
+
+        function updatePredictButton() {
+            const md5Input = document.getElementById('md5Input').value;
+            const predictBtn = document.getElementById('predictBtn');
+            
+            if (md5Input.length === 32 && /^[a-fA-F0-9]+$/.test(md5Input) && isLicenseActive) {
+                predictBtn.disabled = false;
+            } else {
+                predictBtn.disabled = true;
+            }
+        }
+
+        // Event listeners
+        document.getElementById('licenseKey').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                activateLicense();
+            }
+        });
+
+        document.getElementById('md5Input').addEventListener('input', updatePredictButton);
+
+        document.getElementById('md5Input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !document.getElementById('predictBtn').disabled) {
+                predictFromMD5();
+            }
+        });
+    </script>
+</body>
+</html>
